@@ -1,5 +1,8 @@
 doubanFM
 ========
+改用mplayer来播放
+修正requests json的一处bug
+
 A <http://douban.fm> client for shell
 Version
 ---------

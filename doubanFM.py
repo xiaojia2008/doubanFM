@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import json, requests, os.path, subprocess
+import mplayer
 class DoubanFM():
     def __init__(self):
         self.logined = False
@@ -11,10 +12,10 @@ class DoubanFM():
 #        self.proxy = {'http':'http://127.0.0.1:9341'}
         self.proxy = None
     def login(self,email,passwd):
-        payload={'email':email,'password':passwd,'app_name':'radio_desktop_win','version':100}
+        payload={'email':email,'password':passwd,'app_name':'radio_desktop_mac','version':100}
         url = 'http://www.douban.com/j/app/login'
         r = requests.post(url, data=payload,proxies=self.proxy)
-        data = r.json
+        data = r.json()
         if data['err']!='ok':
             print('login failed')
             return False
@@ -41,20 +42,20 @@ class DoubanFM():
             h = '|'+':s|'.join([x['sid'] for x in self.history])+':s'
             self.history = []
         if self.logined:
-            params = {'app_name':'radio_desktop_win','version':100,'user_id':self.user_id,
+            params = {'app_name':'radio_desktop_mac','version':100,'user_id':self.user_id,
                 'expire':self.expire,'token':self.token,'type':type,'sid':self.cur_song['sid'],'h':h,'channel':channel}
         else:
-            params = {'app_name':'radio_desktop_win','version':100,'type':type,'sid':self.cur_song['sid'],'h':h,'channel':channel}
+            params = {'app_name':'radio_desktop_mac','version':100,'type':type,'sid':self.cur_song['sid'],'h':h,'channel':channel}
         return params
     def getSongList(self,channel):
-        url = 'http://www.douban.com/j/app/radio/people'
+        url = 'http://douban.fm/j/app/radio/people'
         payload = self.getParams(channel)
         r = requests.get(url,params=payload,proxies=self.proxy)
-        return r.json['song']
+        return r.json()['song']
     def getChannels(self):
-        url = 'http://www.douban.com/j/app/radio/channels'
+        url = 'http://douban.fm/j/app/radio/channels'
         r = requests.get(url,proxies=self.proxy)
-        return r.json['channels']
+        return r.json()['channels']
     def printChannels(self):
         self.channels = ''
         if not self.channels:
@@ -77,7 +78,8 @@ class MusicPlayer():
             song = doubanFM.playSong()
             self.playing(url=song['url'])
     def playing(self,url):
-        cmd = ['ffplay',url,'-nodisp','-autoexit']
+        #cmd = ['ffplay',url,'-nodisp','-autoexit']
+	cmd = ['mplayer', '-really-quiet', url]
         pro = subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         try:
             pro.communicate()
